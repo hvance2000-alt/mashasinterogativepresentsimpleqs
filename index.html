@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case File #001 — The Present Simple Detective</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1b222b; --line:#2b3542;
+  --gold:#f0b429; --gold2:#ffd97d; --text:#e6edf3; --muted:#8b98a5;
+  --green:#3fb950; --red:#f85149; --blue:#58a6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1b2430 0%, transparent 60%),
+    radial-gradient(900px 500px at 105% 105%, #1a2030 0%, transparent 55%),
+    var(--bg);
+  color:var(--text); min-height:100vh; padding:24px 16px 60px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- screens ---------- */
+.screen{display:none;animation:fade .35s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- intro ---------- */
+.badge{
+  display:inline-block;font-family:"Courier New",monospace;font-size:12px;letter-spacing:.18em;
+  color:var(--gold);border:1px solid rgba(240,180,41,.4);border-radius:999px;
+  padding:6px 14px;background:rgba(240,180,41,.07);margin-bottom:18px;
+}
+h1{
+  font-family:"Courier New",monospace;font-size:clamp(28px,5vw,48px);line-height:1.1;
+  letter-spacing:-.02em;margin-bottom:10px;
+  background:linear-gradient(120deg,#fff 20%,var(--gold) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.sub{color:var(--muted);font-size:17px;margin-bottom:28px}
+.brief{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:12px;padding:22px 24px;max-width:720px;margin-bottom:28px;
+  line-height:1.75;color:#c9d4df;
+}
+.brief p+p{margin-top:12px}
+.brief b{color:var(--gold2)}
+
+/* ---------- buttons ---------- */
+.btn{
+  font:inherit;font-weight:600;font-size:15px;cursor:pointer;
+  border:1px solid var(--line);background:var(--panel2);color:var(--text);
+  padding:12px 22px;border-radius:10px;transition:.18s;letter-spacing:.01em;
+}
+.btn:hover{background:#232c37;border-color:#3d4a59;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{
+  background:linear-gradient(180deg,var(--gold2),var(--gold));
+  color:#231a03;border-color:#c99420;box-shadow:0 6px 20px -8px rgba(240,180,41,.8);
+}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.primary:disabled,.btn:disabled{opacity:.38;cursor:not-allowed;transform:none;filter:none}
+.btn.small{padding:8px 14px;font-size:13px;border-radius:8px}
+.btn.ghost{background:transparent}
+.btn.danger{background:rgba(248,81,73,.12);border-color:rgba(248,81,73,.45);color:#ff9b95}
+
+/* ---------- training ---------- */
+.sect-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.sect-head h2{font-family:"Courier New",monospace;font-size:24px;letter-spacing:-.01em}
+.sect-head .hint{color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin:22px 0}
+.tcard{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:20px;
+  display:flex;flex-direction:column;gap:12px;transition:.25s;position:relative;overflow:hidden;
+}
+.tcard::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;
+  background:linear-gradient(90deg,var(--gold),transparent);opacity:.7}
+.tcard.solved{border-color:rgba(63,185,80,.5)}
+.tcard.solved::before{background:linear-gradient(90deg,var(--green),transparent)}
+.tlabel{font-family:"Courier New",monospace;font-size:11px;letter-spacing:.16em;color:var(--gold)}
+.tcard h3{font-size:19px}
+.pattern{
+  font-family:"Courier New",monospace;font-size:13.5px;line-height:1.7;
+  background:#0f141a;border:1px dashed #2f3a47;border-radius:9px;padding:12px 14px;color:#b9c6d4;
+}
+.pattern b{color:var(--gold2)}
+.warn{color:#ff8b84;font-size:11px;letter-spacing:.06em}
+.note{font-size:13.5px;color:var(--muted);line-height:1.65}
+.note b{color:#c9d4df}
+.tasklabel{font-family:"Courier New",monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);margin-top:4px}
+.slot{
+  min-height:52px;border:1px dashed #3a4655;border-radius:10px;padding:9px;
+  display:flex;flex-wrap:wrap;gap:7px;align-items:center;background:#0f141a;transition:.2s;
+}
+.slot .ph{color:#4d5a68;font-size:13px;font-style:italic;padding-left:6px}
+.pool{display:flex;flex-wrap:wrap;gap:7px;min-height:34px}
+.chip{
+  font-size:13px;padding:7px 12px;border-radius:8px;cursor:pointer;user-select:none;
+  background:#232c37;border:1px solid #38434f;color:#dbe4ec;transition:.15s;white-space:nowrap;
+}
+.chip:hover{background:#2e3944;border-color:var(--gold);color:var(--gold2);transform:translateY(-1px)}
+.chip.placed{background:rgba(240,180,41,.14);border-color:rgba(240,180,41,.5);color:var(--gold2)}
+.taskfoot{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fb{font-size:13px;font-weight:600}
+.fb.ok{color:var(--green)} .fb.bad{color:var(--red)}
+.done{font-size:13px;color:var(--green);font-weight:600;letter-spacing:.02em}
+.done small{display:block;color:var(--muted);font-weight:400;margin-top:6px;font-size:12.5px;line-height:1.6}
+
+/* ---------- game ---------- */
+.hud{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:12px 16px;margin-bottom:18px;font-family:"Courier New",monospace;font-size:13px;
+}
+.hud .pill{
+  background:#0f141a;border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--muted);
+}
+.hud .pill b{color:var(--gold2)}
+.hud .spacer{flex:1}
+.game-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,430px);gap:18px;align-items:start}
+@media(max-width:920px){.game-grid{grid-template-columns:1fr}}
+
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel h3{font-family:"Courier New",monospace;font-size:14px;letter-spacing:.12em;
+  color:var(--gold);margin-bottom:14px;text-transform:uppercase}
+
+.suspect{
+  display:flex;align-items:center;gap:14px;background:#0f141a;border:1px solid var(--line);
+  border-radius:12px;padding:14px 16px;margin-bottom:16px;
+}
+.silhouette{
+  width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-size:26px;background:radial-gradient(circle at 40% 35%,#2c3642,#161c23);
+  border:1px solid #38434f;filter:grayscale(1) brightness(.75);
+}
+.suspect .txt strong{display:block;font-size:15px;margin-bottom:3px}
+.suspect .txt span{font-size:12.5px;color:var(--muted);font-family:"Courier New",monospace}
+
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{
+  font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:9px 15px;border-radius:9px;
+  background:#141a21;border:1px solid var(--line);color:var(--muted);transition:.18s;
+  font-family:"Courier New",monospace;letter-spacing:.05em;
+}
+.tab:hover{color:var(--text);border-color:#3d4a59}
+.tab.active{background:rgba(240,180,41,.13);border-color:rgba(240,180,41,.55);color:var(--gold2)}
+.tab .cost{font-size:10px;opacity:.75;margin-left:4px}
+
+.qbuilder{margin-bottom:12px}
+.qline{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  background:#0f141a;border:1px solid var(--line);border-radius:11px;padding:14px;
+  font-size:15.5px;line-height:2;
+}
+.qline .fx{color:#93a2b1}
+select{
+  font:inherit;font-size:14px;font-weight:600;color:var(--gold2);
+  background:#20272f;border:1px solid #3a4553;border-radius:8px;padding:6px 9px;
+  cursor:pointer;max-width:230px;transition:.15s;
+}
+select:hover{border-color:var(--gold);background:#262f39}
+select:focus{outline:2px solid rgba(240,180,41,.4);outline-offset:1px}
+.askrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.tip{font-size:12px;color:var(--muted)}
+
+.log{
+  max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:11px;
+  padding-right:6px;margin-top:16px;border-top:1px solid var(--line);padding-top:16px;
+}
+.log:empty::after{content:"No questions asked yet. Start the interrogation…";
+  color:#4d5a68;font-size:13px;font-style:italic}
+.log::-webkit-scrollbar{width:6px}
+.log::-webkit-scrollbar-thumb{background:#2c3642;border-radius:3px}
+.entry{display:flex;flex-direction:column;gap:6px;animation:fade .3s ease}
+.entry .row{display:flex;gap:9px;font-size:14px;line-height:1.55}
+.tag{
+  font-family:"Courier New",monospace;font-size:10px;letter-spacing:.1em;
+  padding:3px 7px;border-radius:5px;flex:none;height:fit-content;margin-top:2px;
+}
+.row.you .tag{background:rgba(88,166,255,.14);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.row.them .tag{background:rgba(63,185,80,.13);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.row.them .msg{color:#b9f0c4}
+.row.you .msg{color:#c9d4df}
+
+/* ---------- case files ---------- */
+.file{
+  background:#12181f;border:1px solid var(--line);border-radius:12px;
+  padding:13px;margin-bottom:11px;transition:.2s;
+}
+.file:hover{border-color:#3d4a59}
+.file.dead{opacity:.4;filter:grayscale(.6)}
+.file-head{display:flex;gap:11px;align-items:flex-start;margin-bottom:10px}
+.file-head .av{font-size:26px;line-height:1;flex:none}
+.file-head .nm{font-weight:700;font-size:14.5px}
+.file-head .tr{font-size:11.5px;color:var(--gold);font-family:"Courier New",monospace;margin-top:2px;letter-spacing:.02em}
+.sched{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.sched .d{
+  font-size:10.5px;font-family:"Courier New",monospace;background:#1b232c;
+  border:1px solid #29323d;border-radius:6px;padding:4px 7px;color:#9fb0c0;
+}
+.sched .d b{color:var(--gold2);font-weight:600}
+
+/* ---------- toast / modal ---------- */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translate(-50%,-24px);opacity:0;
+  background:#20272f;border:1px solid var(--line);border-radius:10px;
+  padding:12px 22px;font-size:14px;font-weight:600;pointer-events:none;
+  transition:.3s;z-index:60;box-shadow:0 14px 40px -12px #000;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.good{border-color:rgba(63,185,80,.5);color:#8ef0a0}
+.toast.bad{border-color:rgba(248,81,73,.5);color:#ff9b95}
+
+.overlay{
+  position:fixed;inset:0;background:rgba(6,9,13,.82);backdrop-filter:blur(5px);
+  display:grid;place-items:center;padding:20px;z-index:80;animation:fade .3s ease;
+}
+.overlay.hidden{display:none}
+.modal{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:18px;padding:34px 30px;max-width:460px;width:100%;
+  text-align:center;box-shadow:0 30px 80px -20px #000;
+}
+.modal .big{font-size:52px;margin-bottom:12px}
+.modal h2{font-family:"Courier New",monospace;font-size:24px;margin-bottom:10px}
+.modal h2.win{color:var(--gold2)} .modal h2.lose{color:#ff9b95}
+.modal p{color:var(--muted);line-height:1.7;font-size:14.5px;margin-bottom:8px}
+.modal .who{
+  font-size:19px;font-weight:700;color:var(--text);margin:14px 0 4px;
+}
+.modal .desc{font-family:"Courier New",monospace;font-size:12.5px;color:var(--gold);letter-spacing:.04em}
+.stars{font-size:30px;letter-spacing:6px;color:var(--gold);margin:18px 0 6px}
+.stars .off{color:#333d49}
+.modal .btn{margin-top:20px;width:100%}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ============ INTRO ============ -->
+  <section id="screen-intro" class="screen active">
+    <div class="badge">🕵️ CASE FILE #001</div>
+    <h1>The Present Simple Detective</h1>
+    <p class="sub">A reporter's guide to cracking the case with questions.</p>
+
+    <div class="brief">
+      <p><b>Your mission:</b> A mystery member of the Harper family is hiding somewhere in the city.
+      You may interrogate the suspect, but you cannot see their face.</p>
+      <p>Ask about their weekly routine, then match their answers against the <b>family case files</b>
+      to identify who is behind the screen.</p>
+      <p>Before you enter the interrogation room, you must master the <b>three Present Simple
+      question structures</b> in the Training Room.</p>
+    </div>
+
+    <button class="btn primary" onclick="go('training')">Enter the Training Room →</button>
+  </section>
+
+  <!-- ============ TRAINING ============ -->
+  <section id="screen-training" class="screen">
+    <div class="sect-head">
+      <h2>Training Room</h2>
+      <span class="hint">Build each question correctly to unlock the interrogation room.</span>
+    </div>
+    <div class="cards" id="cards"></div>
+    <button class="btn primary" id="startBtn" disabled onclick="startGame()">
+      🔒 Start the Interrogation
+    </button>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen">
+    <div class="hud">
+      <span class="pill">CASE <b>#001</b></span>
+      <span class="pill">QUESTIONS ASKED <b id="hud-q">0</b></span>
+      <span class="pill">STRIKES <b id="hud-s">0 / 3</b></span>
+      <span class="spacer"></span>
+      <button class="btn small ghost" onclick="newCase()">↻ New Case</button>
+    </div>
+
+    <div class="game-grid">
+      <!-- LEFT: interrogation -->
+      <div class="panel">
+        <h3>Interrogation Room</h3>
+
+        <div class="suspect">
+          <div class="silhouette">❓</div>
+          <div class="txt">
+            <strong>Unknown Suspect</strong>
+            <span id="suspect-status">behind the screen · voice only</span>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="yesno">1 · YES / NO</button>
+          <button class="tab" data-tab="wh">2 · WH- QUESTIONS</button>
+          <button class="tab" data-tab="who">3 · WHO <span class="cost">(costs 2)</span></button>
+        </div>
+
+        <div class="qbuilder" id="qbuilder"></div>
+
+        <div class="askrow">
+          <button class="btn primary" id="askBtn" onclick="ask()">🎤 Ask the Question</button>
+          <span class="tip" id="askTip">Ask about the suspect's weekly routine.</span>
+        </div>
+
+        <div class="log" id="log"></div>
+      </div>
+
+      <!-- RIGHT: case files -->
+      <div class="panel">
+        <h3>Harper Family Case Files</h3>
+        <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          Match the suspect's answers to a routine below. When you are sure, accuse.
+          Three wrong accusations and the suspect walks free.
+        </p>
+        <div id="files"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SHORT = {Monday:'Mon',Tuesday:'Tue',Wednesday:'Wed',Thursday:'Thu',Friday:'Fri',Saturday:'Sat',Sunday:'Sun'};
+
+const FAMILY = [
+  {
+    id:'mark', name:'Uncle Mark', emoji:'🧔',
+    traits:'dark curly hair · quiet · clever',
+    week:{
+      Monday:    {act:'read a textbook',    place:'at the library'},
+      Tuesday:   {act:'play computer games',place:'at home'},
+      Wednesday: {act:'write in a notebook',place:'at the library'},
+      Thursday:  {act:'read a textbook',    place:'at home'},
+      Friday:    {act:'watch TV',           place:'at home'},
+      Saturday:  {act:'play computer games',place:'at the arcade'},
+      Sunday:    {act:'get up early',       place:'at home'}
+    }
+  },
+  {
+    id:'jenna', name:'Aunt Jenna', emoji:'👩‍🦰',
+    traits:'long red hair · talkative · funny',
+    week:{
+      Monday:    {act:'cook dinner',        place:'at home'},
+      Tuesday:   {act:'water the flowers',  place:'in the garden'},
+      Wednesday: {act:'visit friends',      place:'at the café'},
+      Thursday:  {act:'cook dinner',        place:'at home'},
+      Friday:    {act:'listen to music',    place:'at home'},
+      Saturday:  {act:'water the flowers',  place:'in the garden'},
+      Sunday:    {act:'write in a notebook',place:'at home'}
+    }
+  },
+  {
+    id:'leo', name:'Cousin Leo', emoji:'👦',
+    traits:'short blond hair · sporty · loud',
+    week:{
+      Monday:    {act:'ride a bike',        place:'in the park'},
+      Tuesday:   {act:'play computer games',place:'at home'},
+      Wednesday: {act:'play football',      place:'at the sports centre'},
+      Thursday:  {act:'ride a bike',        place:'in the park'},
+      Friday:    {act:'listen to music',    place:'at home'},
+      Saturday:  {act:'play football',      place:'at the sports centre'},
+      Sunday:    {act:'get up early',       place:'in the park'}
+    }
+  },
+  {
+    id:'rose', name:'Grandma Rose', emoji:'👵',
+    traits:'grey hair · kind · calm',
+    week:{
+      Monday:    {act:'water the flowers',  place:'in the garden'},
+      Tuesday:   {act:'bake a cake',        place:'in the kitchen'},
+      Wednesday: {act:'read a textbook',    place:'at the library'},
+      Thursday:  {act:'bake a cake',        place:'in the kitchen'},
+      Friday:    {act:'watch TV',           place:'at home'},
+      Saturday:  {act:'visit friends',      place:'at the café'},
+      Sunday:    {act:'cook dinner',        place:'at home'}
+    }
+  },
+  {
+    id:'nina', name:'Cousin Nina', emoji:'👧',
+    traits:'black straight hair · shy · artistic',
+    week:{
+      Monday:    {act:'write in a notebook',place:'at home'},
+      Tuesday:   {act:'listen to music',    place:'at home'},
+      Wednesday: {act:'ride a bike',        place:'in the park'},
+      Thursday:  {act:'write in a notebook',place:'at the library'},
+      Friday:    {act:'play computer games',place:'at home'},
+      Saturday:  {act:'bake a cake',        place:'in the kitchen'},
+      Sunday:    {act:'visit friends',      place:'at the café'}
+    }
+  }
+];
+
+const ACTIVITIES = [...new Set(FAMILY.flatMap(f => Object.values(f.week).map(e => e.act)))].sort();
+
+/* =========================================================
+   TRAINING CARDS
+   ========================================================= */
+const CARDS = [
+  {
+    n:1, label:'TYPE 1 · YES / NO',
+    title:'Yes / No Questions',
+    pattern:'<b>Do</b> / <b>Does</b> + person + usually + verb + … + on + day?',
+    note:'Use <b>Do</b> with I / you / we / they. Use <b>Does</b> with he / she / it — and the main verb loses its -s.',
+    words:['Do','you','usually','read','a textbook','on Tuesday?'],
+    after:'Short answers: “Yes, I do.” / “No, he doesn’t.”'
+  },
+  {
+    n:2, label:'TYPE 2 · WH-',
+    title:'Wh- Questions',
+    pattern:'<b>What / Where / When</b> + do / does + person + usually + verb …?',
+    note:'The Wh- word goes first, then the same do/does word order as a Yes/No question.',
+    words:['Where','do','you','usually','do homework','on Wednesday?'],
+    after:'More: “What do you usually do on Sunday?” · “When does she get up early?”'
+  },
+  {
+    n:3, label:'TYPE 3 · WHO',
+    title:'Who- Questions',
+    pattern:'<b>Who</b> + verb + <b>-s</b> + …? <span class="warn">NO do / does!</span>',
+    note:'When <b>Who</b> is the subject of the question, there is no do/does — and the verb takes -s.',
+    words:['Who','always','writes','in a notebook','on Thursday?'],
+    after:'Compare: “Who always gets up early on Sunday?”'
+  }
+];
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function opts(list,sel){return list.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');}
+function thirdPerson(phrase){
+  const p = phrase.split(' ');
+  let v = p[0];
+  if(/(ch|sh|ss|x|o)$/.test(v)) v += 'es';
+  else if(/[^aeiou]y$/.test(v)) v = v.slice(0,-1)+'ies';
+  else v += 's';
+  p[0] = v;
+  return p.join(' ');
+}
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toast(msg,type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type||'');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.className='toast',2300);
+}
+
+/* =========================================================
+   TRAINING LOGIC
+   ========================================================= */
+const cardState = {};
+
+function initTraining(){
+  CARDS.forEach(c=>{
+    const base = c.words.map((_,i)=>i);
+    let sh = shuffle([...base]);
+    let guard = 0;
+    while(sh.join()===base.join() && guard++ < 30) sh = shuffle([...base]);
+    cardState[c.n] = {order:sh, chosen:[], solved:false, fb:''};
+  });
+  renderTraining();
+}
+
+function renderTraining(){
+  document.getElementById('cards').innerHTML = CARDS.map(c=>{
+    const st = cardState[c.n];
+    const pool = st.order.filter(i=>!st.chosen.includes(i));
+    return `
+    <div class="tcard ${st.solved?'solved':''}">
+      <div class="tlabel">${c.label}</div>
+      <h3>${c.title}</h3>
+      <div class="pattern">${c.pattern}</div>
+      <p class="note">${c.note}</p>
+
+      <div class="tasklabel">BUILD THE EXAMPLE QUESTION</div>
+      <div class="pool">
+        ${pool.map(i=>`<span class="chip" data-card="${c.n}" data-i="${i}">${c.words[i]}</span>`).join('')}
+      </div>
+      <div class="slot">
+        ${st.chosen.length
+          ? st.chosen.map(i=>`<span class="chip placed" data-card="${c.n}" data-i="${i}">${c.words[i]}</span>`).join('')
+          : '<span class="ph">tap the words above in the correct order…</span>'}
+      </div>
+
+      <div class="taskfoot">
+        <button class="btn small" data-check="${c.n}" ${st.solved?'disabled':''}>Check</button>
+        <button class="btn small ghost" data-reset="${c.n}" ${st.solved?'disabled':''}>Reset</button>
+        <span class="fb ${st.fb.startsWith('✔')?'ok':'bad'}">${st.fb}</span>
+      </div>
+
+      ${st.solved ? `<div class="done">✔ Structure mastered<small>${c.after}</small></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('cards').addEventListener('click', e=>{
+  const chip  = e.target.closest('.chip');
+  const check = e.target.closest('[data-check]');
+  const reset = e.target.closest('[data-reset]');
+
+  if(chip){
+    const n = +chip.dataset.card, i = +chip.dataset.i;
+    const st = cardState[n];
+    if(st.solved) return;
+    if(st.chosen.includes(i)) st.chosen = st.chosen.filter(x=>x!==i);
+    else st.chosen.push(i);
+    st.fb = '';
+    renderTraining();
+    return;
+  }
+  if(reset){
+    const n = +reset.dataset.reset;
+    cardState[n].chosen = [];
+    cardState[n].fb = '';
+    renderTraining();
+    return;
+  }
+  if(check){
+    const n = +check.dataset.check;
+    const st = cardState[n];
+    const card = CARDS.find(c=>c.n===n);
+    const ok = st.chosen.length===card.words.length && st.chosen.every((v,k)=>v===k);
+    if(ok){
+      st.solved = true;
+      st.fb = '✔ Correct!';
+      renderTraining();
+      checkAllSolved();
+    } else {
+      st.fb = '✗ Not quite — check the word order.';
+      renderTraining();
+    }
+  }
+});
+
+function checkAllSolved(){
+  const all = CARDS.every(c=>cardState[c.n].solved);
+  const btn = document.getElementById('startBtn');
+  btn.disabled = !all;
+  btn.textContent = all ? '🔓 Start the Interrogation' : '🔒 Start the Interrogation';
+  if(all) toast('All three structures mastered. Interrogation room unlocked.', 'good');
+}
+
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+const state = { mystery:null, asked:0, strikes:0, over:false, dead:[] };
+
+const builder = {
+  tab:'yesno',
+  yn:{act:ACTIVITIES[0], day:DAYS[0]},
+  wh:{word:'Where', act:ACTIVITIES[0], day:DAYS[0]},
+  who:{act:ACTIVITIES[0], day:DAYS[0]}
+};
+
+/* ---------- builder UI ---------- */
+function renderBuilder(){
+  const b = builder;
+  let html = '';
+
+  if(b.tab==='yesno'){
+    html = `<div class="qline">
+      <span class="fx">Do you usually</span>
+      <select data-path="yn.act">${opts(ACTIVITIES,b.yn.act)}</select>
+      <span class="fx">on</span>
+      <select data-path="yn.day">${opts(DAYS,b.yn.day)}</select>
+      <span class="fx">?</span>
+    </div>`;
+  } else if(b.tab==='wh'){
+    const w = b.wh.word;
+    let mid = '';
+    if(w==='What'){
+      mid = `<span class="fx">do you usually do on</span>
+             <select data-path="wh.day">${opts(DAYS,b.wh.day)}</select>`;
+    } else if(w==='Where'){
+      mid = `<span class="fx">do you usually</span>
+             <select data-path="wh.act">${opts(ACTIVITIES,b.wh.act)}</select>
+             <span class="fx">on</span>
+             <select data-path="wh.day">${opts(['any day',...DAYS],b.wh.day)}</select>`;
+    } else {
+      mid = `<span class="fx">do you usually</span>
+             <select data-path="wh.act">${opts(ACTIVITIES,b.wh.act)}</select>`;
+    }
+    html = `<div class="qline">
+      <select data-path="wh.word">${opts(['What','Where','When'],b.wh.word)}</select>
+      ${mid}<span class="fx">?</span>
+    </div>`;
+  } else {
+    html = `<div class="qline">
+      <span class="fx">Who always</span>
+      <select data-path="who.act">${opts(ACTIVITIES,b.who.act)}</select>
+      <span class="fx">on</span>
+      <select data-path="who.day">${opts(DAYS,b.who.day)}</select>
+      <span class="fx">?</span>
+    </div>`;
+  }
+  document.getElementById('qbuilder').innerHTML = html;
+
+  document.getElementById('askTip').textContent =
+    b.tab==='who'
+      ? '⚠️ A Who- question is powerful — it costs 2 questions.'
+      : 'Ask about the suspect’s weekly routine.';
+}
+
+document.getElementById('qbuilder').addEventListener('change', e=>{
+  const sel = e.target.closest('select');
+  if(!sel) return;
+  const [g,k] = sel.dataset.path.split('.');
+  builder[g][k] = sel.value;
+  if(g==='wh' && k==='word'){
+    if(sel.value!=='Where' && builder.wh.day==='any day') builder.wh.day = DAYS[0];
+    renderBuilder();
+  }
+});
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    builder.tab = t.dataset.tab;
+    renderBuilder();
+  });
+});
+
+/* ---------- answering engine ---------- */
+function answerWhere(m, act, day){
+  if(day){
+    const e = m.week[day];
+    return e.act===act
+      ? `I ${act} ${e.place} on ${day}.`
+      : `I don’t ${act} on ${day}.`;
+  }
+  const ds = DAYS.filter(d=>m.week[d].act===act);
+  if(!ds.length) return `I never ${act}.`;
+  const parts = ds.map(d=>`on ${d} I ${act} ${m.week[d].place}`);
+  let s = parts.join(', and ');
+  return s.charAt(0).toUpperCase()+s.slice(1)+'.';
+}
+
+function answerWhen(m, act){
+  const ds = DAYS.filter(d=>m.week[d].act===act);
+  if(!ds.length) return `I never ${act}.`;
+  if(ds.length===1) return `I ${act} on ${ds[0]}.`;
+  return `I ${act} on ${ds.slice(0,-1).join(', ')} and ${ds[ds.length-1]}.`;
+}
+
+function answerWho(act, day){
+  const names = FAMILY.filter(f=>f.week[day].act===act).map(f=>f.name);
+  if(!names.length) return `Nobody ${thirdPerson(act)} on ${day}.`;
+  if(names.length===1) return `${names[0]} does.`;
+  return `${names.slice(0,-1).join(', ')} and ${names[names.length-1]} do.`;
+}
+
+/* ---------- ask ---------- */
+function ask(){
+  if(state.over) return;
+  const m = state.mystery;
+  const b = builder;
+  let q='', a='', cost=1, speaker='💬 SUSPECT';
+
+  if(b.tab==='yesno'){
+    q = `Do you usually ${b.yn.act} on ${b.yn.day}?`;
+    a = (m.week[b.yn.day].act === b.yn.act) ? 'Yes, I do.' : 'No, I don’t.';
+  }
+  else if(b.tab==='wh'){
+    if(b.wh.word==='What'){
+      q = `What do you usually do on ${b.wh.day}?`;
+      const e = m.week[b.wh.day];
+      a = `On ${b.wh.day} I ${e.act} ${e.place}.`;
+    } else if(b.wh.word==='Where'){
+      const day = b.wh.day==='any day' ? null : b.wh.day;
+      q = `Where do you usually ${b.wh.act}${day?` on ${day}`:''}?`;
+      a = answerWhere(m, b.wh.act, day);
+    } else {
+      q = `When do you usually ${b.wh.act}?`;
+      a = answerWhen(m, b.wh.act);
+    }
+  }
+  else {
+    q = `Who always ${b.who.act} on ${b.who.day}?`;
+    a = answerWho(b.who.act, b.who.day);
+    cost = 2;
+    speaker = '📁 FAMILY RECORDS';
+  }
+
+  state.asked += cost;
+  addLog(q, a, speaker);
+  updateHUD();
+}
+
+function addLog(q, a, speaker){
+  const log = document.getElementById('log');
+  const d = document.createElement('div');
+  d.className = 'entry';
+  d.innerHTML = `
+    <div class="row you"><span class="tag">YOU</span><span class="msg">${q}</span></div>
+    <div class="row them"><span class="tag">${speaker}</span><span class="msg">${a}</span></div>`;
+  log.appendChild(d);
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateHUD(){
+  document.getElementById('hud-q').textContent = state.asked;
+  document.getElementById('hud-s').textContent = state.strikes + ' / 3';
+}
+
+/* ---------- case files ---------- */
+function renderFiles(){
+  document.getElementById('files').innerHTML = FAMILY.map(f=>{
+    const dead = state.dead.includes(f.id);
+    return `
+    <div class="file ${dead?'dead':''}">
+      <div class="file-head">
+        <span class="av">${f.emoji}</span>
+        <div>
+          <div class="nm">${f.name}</div>
+          <div class="tr">${f.traits}</div>
+        </div>
+      </div>
+      <div class="sched">
+        ${DAYS.map(d=>`<span class="d"><b>${DAY_SHORT[d]}</b> ${f.week[d].act}</span>`).join('')}
+      </div>
+      <button class="btn small danger" data-accuse="${f.id}" ${state.over?'disabled':''}>
+        Accuse ${f.name}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('files').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-accuse]');
+  if(!btn || state.over) return;
+  accuse(btn.dataset.accuse);
+});
+
+/* ---------- accusation ---------- */
+function accuse(id){
+  if(id === state.mystery.id){ win(); return; }
+
+  state.strikes++;
+  if(!state.dead.includes(id)) state.dead.push(id);
+  updateHUD();
+  renderFiles();
+
+  if(state.strikes >= 3){ lose(); }
+  else toast(`❌ Wrong! ${FAMILY.find(f=>f.id===id).name} is innocent. Strike ${state.strikes}/3.`,'bad');
+}
+
+/* ---------- end states ---------- */
+function stars(){
+  if(state.asked <= 4) return 3;
+  if(state.asked <= 7) return 2;
+  return 1;
+}
+
+function win(){
+  state.over = true;
+  renderFiles();
+  document.getElementById('askBtn').disabled = true;
+
+  const m = state.mystery;
+  const s = stars();
+  const starHTML = [1,2,3].map(i=>`<span class="${i<=s?'':'off'}">★</span>`).join('');
+
+  document.getElementById('modal').innerHTML = `
+    <div class="big">🎉</div>
+    <h2 class="win">Case Closed!</h2>
+    <p>You identified the mystery family member using only Present Simple questions.</p>
+    <div class="who">${m.emoji} ${m.name}</div>
+    <div class="desc">${m.traits}</div>
+    <div class="stars">${starHTML}</div>
+    <p style="font-size:13px">Solved with <b style="color:var(--gold2)">${state.asked}</b> question${state.asked===1?'':'s'} and ${state.strikes} wrong accusation${state.strikes===1?'':'s'}.</p>
+    <button class="btn primary" onclick="newCase()">🔍 Take Another Case</button>
+  `;
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+function lose(){
+  state.over = true;
+  renderFiles();
+  document.getElementById('askBtn').disabled = true;
+
+  const m = state.mystery;
+  document.getElementById('modal').innerHTML = `
+    <div class="big">🚪</div>
+    <h2 class="lose">The Suspect Walked Free</h2>
+    <p>Three wrong accusations. The interrogation is over.</p>
+    <div class="who">${m.emoji} ${m.name}</div>
+    <div class="desc">${m.traits}</div>
+    <p style="margin-top:16px;font-size:13px">Tip: ask a <b>Where</b> or <b>When</b> question to narrow down the routine faster.</p>
+    <button class="btn primary" onclick="newCase()">🔍 Try a New Case</button>
+  `;
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+/* ---------- game setup ---------- */
+function startGame(){
+  go('game');
+  newCase();
+}
+
+function newCase(){
+  document.getElementById('overlay').classList.add('hidden');
+  state.mystery = FAMILY[Math.floor(Math.random()*FAMILY.length)];
+  state.asked = 0;
+  state.strikes = 0;
+  state.over = false;
+  state.dead = [];
+
+  document.getElementById('log').innerHTML = '';
+  document.getElementById('askBtn').disabled = false;
+  document.getElementById('suspect-status').textContent = 'behind the screen · voice only';
+
+  updateHUD();
+  renderFiles();
+  renderBuilder();
+  toast('New case opened. Start asking!', 'good');
+}
+
+/* ---------- init ---------- */
+initTraining();
+renderBuilder();
+</script>
+</body>
+</html>
